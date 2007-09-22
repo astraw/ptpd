@@ -1,0 +1,5 @@
+ptpd (1~rc1-1~0ads1) unstable; urgency=low
+
+  * Initial packaging. Closes: #443533.
+
+ -- Andrew Straw <strawman@astraw.com>  Sat, 22 Sep 2007 00:09:55 -0700

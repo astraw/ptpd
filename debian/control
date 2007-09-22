@@ -1,0 +1,23 @@
+Source: ptpd
+Section: net
+Priority: optional
+Maintainer: Andrew Straw <strawman@astraw.com>
+Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 5)
+
+Package: ptpd
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Precision Time Protocol daemon
+ Implements the Precision Time Protocol (PTP) as defined by the IEEE
+ 1588 standard. PTP was developed to provide very precise time
+ coordination of LAN connected computers.
+ .
+ PTPd is a complete implementation of the IEEE 1588 specification for a
+ standard (non-boundary) clock. PTPd has been tested with and is known
+ to work properly with other IEEE 1588 implementations. The source code
+ for PTPd is freely available under a BSD-style license. Thanks to
+ contributions from users, PTPd is becoming an increasingly portable,
+ interoperable, and stable IEEE 1588 implementation.
+ .
+ For more information, see http://ptpd.sourceforge.net/
