@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 5)
 
 Package: ptpd
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Precision Time Protocol daemon
  Implements the Precision Time Protocol (PTP) as defined by the IEEE
  1588 standard. PTP was developed to provide very precise time
