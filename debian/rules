@@ -19,7 +19,7 @@ install: build
 	dh_clean
 	dh_installdirs
 	mkdir -p $(CURDIR)/debian/$(package)/usr/bin
-	install -m 644 -g root -o root src/ptpd -t $(CURDIR)/debian/$(package)/usr/bin
+	install -s -m 644 -g root -o root src/ptpd -t $(CURDIR)/debian/$(package)/usr/bin
 
 build:
 	$(MAKE) -C src CC="$(CC)" CFLAGS="$(CFLAGS)"
@@ -34,7 +34,6 @@ binary-arch: install
 	dh_installdocs -a RELEASE_NOTES
 	dh_installchangelogs -a
 	dh_installman -a
-	dh_strip -a
 	dh_compress -a
 	dh_fixperms -a
 	dh_installdeb -a
