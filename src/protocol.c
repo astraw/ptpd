@@ -155,6 +155,9 @@ void doState(RunTimeOpts *rtOpts, PtpClock *ptpClock)
     
     handle(rtOpts, ptpClock);
     
+    if(rtOpts->slaveOnly || ptpClock->clock_stratum == 255)
+      toState(PTP_LISTENING, rtOpts, ptpClock);
+    
     break;
     
   case PTP_DISABLED:
@@ -253,8 +256,10 @@ void toState(UInteger8 state, RunTimeOpts *rtOpts, PtpClock *ptpClock)
     DBG("Q = %d, R = %d\n", ptpClock->Q, ptpClock->R);
     
     ptpClock->waitingForFollow = FALSE;
-    ptpClock->delay_req_send_time.seconds = ptpClock->delay_req_receive_time.seconds = 0;
-    ptpClock->delay_req_send_time.nanoseconds = ptpClock->delay_req_receive_time.nanoseconds = 0;
+    ptpClock->delay_req_send_time.seconds = 0;
+    ptpClock->delay_req_send_time.nanoseconds = 0;
+    ptpClock->delay_req_receive_time.seconds = 0;
+    ptpClock->delay_req_receive_time.nanoseconds = 0;
     
     timerStart(SYNC_RECEIPT_TIMER, PTP_SYNC_RECEIPT_TIMEOUT(ptpClock->sync_interval), ptpClock->itimer);
     
@@ -331,14 +336,32 @@ void handle(RunTimeOpts *rtOpts, PtpClock *ptpClock)
   
   msgUnpackHeader(ptpClock->msgIbuf, &ptpClock->msgTmpHeader);
   
-  DBGV("event Receipt of Message\n   type %d\n"
+  DBGV("event Receipt of Message\n"
+    "   version %d\n"
+    "   type %d\n"
     "   uuid %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx\n"
-    "   sequence %d\n   time %us %dns\n",
+    "   sequence %d\n"
+    "   time %us %dns\n",
+    ptpClock->msgTmpHeader.versionPTP,
     ptpClock->msgTmpHeader.control,
-    ptpClock->msgTmpHeader.sourceUuid[0], ptpClock->msgTmpHeader.sourceUuid[1], ptpClock->msgTmpHeader.sourceUuid[2],
-    ptpClock->msgTmpHeader.sourceUuid[3], ptpClock->msgTmpHeader.sourceUuid[4], ptpClock->msgTmpHeader.sourceUuid[5],
+    ptpClock->msgTmpHeader.sourceUuid[0], ptpClock->msgTmpHeader.sourceUuid[1],
+    ptpClock->msgTmpHeader.sourceUuid[2], ptpClock->msgTmpHeader.sourceUuid[3],
+    ptpClock->msgTmpHeader.sourceUuid[4], ptpClock->msgTmpHeader.sourceUuid[5],
     ptpClock->msgTmpHeader.sequenceId,
     time.seconds, time.nanoseconds);
+  
+  if(ptpClock->msgTmpHeader.versionPTP != VERSION_PTP)
+  {
+    DBGV("ignore version %d message\n", ptpClock->msgTmpHeader.versionPTP);
+    return;
+  }
+  
+  if( memcmp(ptpClock->msgTmpHeader.subdomain, ptpClock->subdomain_name,
+    PTP_SUBDOMAIN_NAME_LENGTH) )
+  {
+    DBGV("ignore message from subdomain %s\n", ptpClock->msgTmpHeader.subdomain);
+    return;
+  }
   
   isFromSelf = ptpClock->msgTmpHeader.sourceCommunicationTechnology == ptpClock->port_communication_technology
     && ptpClock->msgTmpHeader.sourcePortId == ptpClock->port_id_field
@@ -582,8 +605,10 @@ void handleDelayReq(MsgHeader *header, Octet *msgIbuf, ssize_t length, TimeInter
         updateDelay(&ptpClock->delay_req_send_time, &ptpClock->delay_req_receive_time,
           &ptpClock->owd_filt, rtOpts, ptpClock);
         
-        ptpClock->delay_req_receive_time.seconds = ptpClock->delay_req_receive_time.seconds = 0;
-        ptpClock->delay_req_receive_time.nanoseconds = ptpClock->delay_req_receive_time.nanoseconds = 0;
+        ptpClock->delay_req_send_time.seconds = 0;
+        ptpClock->delay_req_send_time.nanoseconds = 0;
+        ptpClock->delay_req_receive_time.seconds = 0;
+        ptpClock->delay_req_receive_time.nanoseconds = 0;
       }
     }
     break;
@@ -635,8 +660,10 @@ void handleDelayResp(MsgHeader *header, Octet *msgIbuf, ssize_t length, Boolean 
         updateDelay(&ptpClock->delay_req_send_time, &ptpClock->delay_req_receive_time,
           &ptpClock->owd_filt, rtOpts, ptpClock);
         
-        ptpClock->delay_req_receive_time.seconds = ptpClock->delay_req_receive_time.seconds = 0;
-        ptpClock->delay_req_receive_time.nanoseconds = ptpClock->delay_req_receive_time.nanoseconds = 0;
+        ptpClock->delay_req_send_time.seconds = 0;
+        ptpClock->delay_req_send_time.nanoseconds = 0;
+        ptpClock->delay_req_receive_time.seconds = 0;
+        ptpClock->delay_req_receive_time.nanoseconds = 0;
       }
     }
     else
