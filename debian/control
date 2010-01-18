@@ -2,7 +2,7 @@ Source: ptpd
 Section: net
 Priority: optional
 Maintainer: Andrew Straw <strawman@astraw.com>
-Standards-Version: 3.7.2
+Standards-Version: 3.8.3
 Build-Depends: debhelper (>= 5)
 
 Package: ptpd
