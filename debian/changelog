@@ -1,4 +1,4 @@
-ptpd (1.0.0-1) unstable; urgency=low
+ptpd (1.0.0-0lucid1) lucid; urgency=low
 
   * Initial packaging. Closes: #443533.
 
