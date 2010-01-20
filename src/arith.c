@@ -1,6 +1,7 @@
 /* arith.c */
  
 #include "ptpd.h"
+#include <limits.h>
 
 /* from annex C of the spec */
 UInteger32 crc_algorithm(Octet *buf, Integer16 length)

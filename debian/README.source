@@ -1,0 +1,2 @@
+The original sources were left intact except for a gcc-4.3 issue for an omitted
+#include <limits.h>
